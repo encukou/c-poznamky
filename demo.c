@@ -1,9 +1,15 @@
 #include <stdio.h>
 
 int main() {
-    printf("Hello world!\n");
-    printf("one plus one is %d\n", 1+1);
-    printf("one plus one is %s\n", "dva");
+    long int a = 1;
+    printf("variable value is %d\n", a);
+    a = (long int)"dva";
+    printf("variable value is %d\n", a);
+    printf("Size of int is %zd\n", sizeof(int));
+
+    char c = 50;
+    c+= 5000;
+    printf("c=%d\n", c);
+
     return 0;
 }
-
