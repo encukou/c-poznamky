@@ -1,70 +1,52 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h> 
+#include "demo.h"   // lokalni soubory v " ", systemove v <>
+
+// const int CENA = 25;
+#define CENA 25
+#define CENA 25 + 5  // to je spatne, bere se doslova
+#define CENA (25 + 5) // delat spis toto
+#define MOCNINA(x) x*x*x
 
 
 int main() {
+    printf("%d\n", treti_mocnina(5+1));
+    printf("%d\n", absolutni_hodnota(5+1));
+    printf("%d\n", absolutni_hodnota(-5+1));
+    int i = 7;
+    printf("%d\n", zvetsi(i));
+    printf("%d\n", i);
+    vypis_cislo(i);
 
-    printf("Velikost float je %zd\n", sizeof(float));
-    printf("Velikost double je %zd\n", sizeof(double));
+    printf("%f\n", sin(1));
 
-    float f = 1.25;
-    printf("f = %f\n", f);
+#ifdef POUZIJ_MAKRO
+    printf("mocnina je %d\n", MOCNINA(3));
+#else
+    printf("mocnina je %d\n", 4*4*4);
+#endif
 
-    f = 1L / 3.f;
-    printf("f = %f\n", f);
-
-    printf("Velikost bool je %zd\n", sizeof(bool));
-
-    bool b = true;
-    printf("b = %d\n", b);
-    b = false;
-    printf("b = %d\n", b);
-    b = (3 == 5) || (3 == 3);  // | je pro bitove operace, || je pro ciselne
-    printf("b = %d\n", b);
-    b = (3 == 5) && (3 == 3);
-    printf("b = %d\n", b);
-
-    b = 8 && 3;
-    printf("b = %d\n", b);
-
-    b = 8 & 3;  // nemaji spolecny zapnuty bit
-    printf("b = %d\n", b);
-
-    b = !(3 == 3); // negace
-    printf("b = %d\n", b);
-
-    int i = -8;
-    if (i) {
-        printf("jo\n");
-    } else {
-        printf("ne\n");
-    }
-
-    b = i;
-    printf("b = %d\n", b);
-
-    printf("!!i = %d\n", !!i); // jeden ! je negace, !! je negace negaci - jak nerychleji neco prevest na bool v C
-
-    printf("i je: %s\n", i ? "pravda" : "nepravda");
-
-    printf("i je: %u\n", (unsigned int)i);
-    printf("i je: %d\n", (bool)i);
-
-    i = 1;
-    switch (i) {
-        case 0:
-            printf("Je to nula\n");
-            break; // nebo: fallthrough - zamerne propadni, jsou spec. priklady
-        case 1:
-            printf("Je to jedna\n");
-            break;
-        case 2:
-            printf("Je to dva\n");
-            break;
-        default:
-            printf("Je to kdo vi co\n");
-            break;
-    }
 
     return 0;
+}
+
+int treti_mocnina(int cislo) {
+    return cislo * cislo * cislo;
+}
+
+int absolutni_hodnota(int cislo) {
+    if (cislo < 0) {
+        return -cislo;
+    }
+    return cislo;
+}
+
+int zvetsi(int cislo) {
+    cislo++;
+    return cislo;
+}
+
+void vypis_cislo(int cislo) {
+    printf("%d\n", cislo);
 }
