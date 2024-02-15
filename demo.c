@@ -6,45 +6,48 @@
 
 #include "demo.h"
 
-//const int CENA = 25;
-//#define CENA 25
-#define MOCNINA(x)  x  * x * x
+int g = 3;
+
+void pricti_jedna(int *p) {
+    *p = *p + 1;
+    printf("nove *p je %d\n", *p);
+}
+
+void podil_a_zbytek(int a, int b, int *adresa_podilu, int *adresa_zbytku) {
+    *adresa_podilu = a / b;
+    *adresa_zbytku = a % b;
+}
 
 int main() {
-    printf("cena je %d\n", CENA);
-    printf("dvakrat cena je %d\n", CENA*2);
-    printf("%d\n", absolutni_hodnota(-5 + 1));
     int i = 6;
+    printf("%d\n", i);
 
-#if 3 < 5
-    printf("jo\n");
-#endif
+    int *ptr = &i;
 
-#ifdef POUZIJ_MAKRO
-    printf("mocnina je %d\n", MOCNINA(3));
-#else
-    printf("mocnina je %d\n", 4 * 4 * 4);
-#endif
+    printf("%p\n", (void *)ptr);
+    printf("%p\n", (void *)&g);
+
+    int vysledek = (*ptr) + 1;
+
+    printf("%d\n", vysledek);
+
+    *ptr = 8;
+
+    printf("%d\n", i);
+
+    //int *ptr2 = NULL;
+    //printf("%d\n", *ptr2);
+
+    pricti_jedna(&i);
+    printf("%d\n", i);
+
+    int podil;
+    int zbytek;
+    podil_a_zbytek(70, 3, &podil, &zbytek);
+    printf("podil je %d\n", podil);
+    printf("zbytek je %d\n", zbytek);
+
+    int **pp = &ptr;
 
     return 0;
-}
-
-int treti_mocnina(int cislo) {
-    return cislo * cislo * cislo;
-}
-
-int absolutni_hodnota(int cislo) {
-    if (cislo < 0) {
-        return -cislo;
-    }
-    return cislo;
-}
-
-int zvetsi(int cislo) {
-    cislo++;
-    return cislo;
-}
-
-void vypis_cislo(int cislo) {
-    printf("%d\n", cislo);
 }
