@@ -6,48 +6,52 @@
 
 #include "demo.h"
 
-int g = 3;
+//#define VELIKOST 6
+//const int VELIKOST = 6;
+#define VELIKOST_POLE(P) (sizeof(P) / sizeof((P)[0]))
 
-void pricti_jedna(int *p) {
-    *p = *p + 1;
-    printf("nove *p je %d\n", *p);
-}
-
-void podil_a_zbytek(int a, int b, int *adresa_podilu, int *adresa_zbytku) {
-    *adresa_podilu = a / b;
-    *adresa_zbytku = a % b;
-}
 
 int main() {
-    int i = 6;
-    printf("%d\n", i);
+    int pole[6] = {2, 3, 4, 5, 6, -1};
 
-    int *ptr = &i;
+    const int velikost = VELIKOST_POLE(pole);
 
-    printf("%p\n", (void *)ptr);
-    printf("%p\n", (void *)&g);
+    printf("sizeof(pole) = %ld\n", sizeof(pole));
+    printf("sizeof(pole[0]) = %ld\n", sizeof(pole[0]));
 
-    int vysledek = (*ptr) + 1;
+    printf("%d\n", pole[0]);
 
-    printf("%d\n", vysledek);
+    for (int i = 0; i < velikost; i++) {
+        printf("prvek %i je %d\n", i, pole[i]);
+    }
 
-    *ptr = 8;
+    //int *ptr = &pole[0]; // ptr ukazuje na prvni prvek pole
+    int *ptr = pole; // ptr ukazuje na prvni prvek pole
 
-    printf("%d\n", i);
+    for (int i = 0; i < velikost; i++) {
+        printf("prvek %i je %d\n", i, *(ptr + i));
+    }
 
-    //int *ptr2 = NULL;
-    //printf("%d\n", *ptr2);
+    for (int i = 0; i < velikost; i++) {
+        printf("prvek %i je %d\n", i, ptr[i]);
+    }
 
-    pricti_jedna(&i);
-    printf("%d\n", i);
+    for (int *current = pole; *current != -1; current++) {
+        printf("aktualni prvek je %d\n", *current);
+    }
 
-    int podil;
-    int zbytek;
-    podil_a_zbytek(70, 3, &podil, &zbytek);
-    printf("podil je %d\n", podil);
-    printf("zbytek je %d\n", zbytek);
+    //char r[6] = {'H', 'e', 'l', 'l', 'o', '\0'};
+    char *r = "Hello";
 
-    int **pp = &ptr;
+    for (char *current = r; *current; current++) {
+        printf("aktualni znak je %c\n", *current);
+    }
+
 
     return 0;
 }
+
+
+
+
+
