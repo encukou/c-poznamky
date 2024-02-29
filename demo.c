@@ -3,55 +3,55 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "demo.h"
 
-//#define VELIKOST 6
-//const int VELIKOST = 6;
-#define VELIKOST_POLE(P) (sizeof(P) / sizeof((P)[0]))
+// "............"
+//  dvacet devet
 
+char *nazev_cisla(int i) {
+    char *result;
+    switch (i) {
+        case 0: {
+            result = malloc(5);
+            result[0] = 'n';
+            result[1] = 'u';
+            result[2] = 'l';
+            result[3] = 'a';
+            result[4] = 0;
+        } break;
+        case 1: {
+            result = malloc(6);
+            result[0] = 'J';
+            result[1] = 'e';
+            result[2] = 'd';
+            result[3] = 'n';
+            result[4] = 'a';
+            result[5] = 0;
+        } break;
+        case 3: {
+            result = malloc(4);
+            memcpy(result, "Tri", 4);
+        } break;
+        default: {
+            result = malloc(6);
+            result[0] = 'N';
+            result[1] = 'e';
+            result[2] = 'v';
+            result[3] = 'i';
+            result[4] = 'm';
+            result[5] = 0;
+        } break;
+    }
+    return result;
+}
 
 int main() {
-    int pole[6] = {2, 3, 4, 5, 6, -1};
-
-    const int velikost = VELIKOST_POLE(pole);
-
-    printf("sizeof(pole) = %ld\n", sizeof(pole));
-    printf("sizeof(pole[0]) = %ld\n", sizeof(pole[0]));
-
-    printf("%d\n", pole[0]);
-
-    for (int i = 0; i < velikost; i++) {
-        printf("prvek %i je %d\n", i, pole[i]);
-    }
-
-    //int *ptr = &pole[0]; // ptr ukazuje na prvni prvek pole
-    int *ptr = pole; // ptr ukazuje na prvni prvek pole
-
-    for (int i = 0; i < velikost; i++) {
-        printf("prvek %i je %d\n", i, *(ptr + i));
-    }
-
-    for (int i = 0; i < velikost; i++) {
-        printf("prvek %i je %d\n", i, ptr[i]);
-    }
-
-    for (int *current = pole; *current != -1; current++) {
-        printf("aktualni prvek je %d\n", *current);
-    }
-
-    //char r[6] = {'H', 'e', 'l', 'l', 'o', '\0'};
-    char *r = "Hello";
-
-    for (char *current = r; *current; current++) {
-        printf("aktualni znak je %c\n", *current);
-    }
-
+    char *nazev = nazev_cisla(3);
+    printf("%s\n", nazev);
+    free(nazev);
 
     return 0;
 }
-
-
-
-
-
