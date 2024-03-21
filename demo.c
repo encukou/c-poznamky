@@ -1,57 +1,80 @@
 #include <stdio.h>
-#include <limits.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <math.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 
-#include "demo.h"
-
-// "............"
-//  dvacet devet
-
-char *nazev_cisla(int i) {
-    char *result;
-    switch (i) {
-        case 0: {
-            result = malloc(5);
-            result[0] = 'n';
-            result[1] = 'u';
-            result[2] = 'l';
-            result[3] = 'a';
-            result[4] = 0;
-        } break;
-        case 1: {
-            result = malloc(6);
-            result[0] = 'J';
-            result[1] = 'e';
-            result[2] = 'd';
-            result[3] = 'n';
-            result[4] = 'a';
-            result[5] = 0;
-        } break;
-        case 3: {
-            result = malloc(4);
-            memcpy(result, "Tri", 4);
-        } break;
-        default: {
-            result = malloc(6);
-            result[0] = 'N';
-            result[1] = 'e';
-            result[2] = 'v';
-            result[3] = 'i';
-            result[4] = 'm';
-            result[5] = 0;
-        } break;
+// vraci staticky retezec, nevolat free()
+char *nazev_jednoducheho_cisla(int n) {
+    switch (n) {
+        case 0: return "nula";
+        case 1: return "jedna";
+        case 2: return "dva";
+        case 3: return "tri";
+        case 4: return "ctyri";
+        case 5: return "pet";
+        case 6: return "sest";
+        case 7: return "sedm";
+        case 8: return "osm";
+        case 9: return "devet";
+        case 10: return "deset";
+        case 11: return "jedenact";
+        case 12: return "dvanact";
+        case 13: return "trinact";
+        case 14: return "ctrnact";
+        case 15: return "patnact";
+        case 16: return "sestnact";
+        case 17: return "sedmnact";
+        case 18: return "osmnact";
+        case 19: return "devatenact";
+        case 20: return "dvacet";
+        case 30: return "tricet";
+        case 40: return "ctyricet";
+        case 50: return "padesat";
+        case 60: return "sedesat";
+        case 70: return "sedmdesat";
+        case 80: return "osmdesat";
+        case 90: return "devadesat";
+        default: return "nevim dal";
     }
-    return result;
+}
+
+size_t delka_retezce(char *retezec) {
+    // reimplementace strlen z <string.h>
+    size_t delka;
+    for (delka = 0; *retezec; delka++, retezec++) {
+        // empty
+    }
+    return delka;
+}
+
+// vraci dynamicky alokovanou pamet, kterou volajici musi uvolnit.
+char *jmeno_cisla(int cislo) {
+    if (cislo <= 20) {
+        return nazev_jednoducheho_cisla(cislo);
+    }
+    int desitky = cislo / 10;
+    int jednotky = cislo % 10;
+    if (jednotky == 0) {
+        return nazev_jednoducheho_cisla(cislo);
+    }
+    char *jmeno_desitek = nazev_jednoducheho_cisla(desitky * 10);
+    size_t delka_desitek = strlen(jmeno_desitek);
+    char *jmeno_jednotek = nazev_jednoducheho_cisla(jednotky);
+    size_t delka_jednotek = strlen(jmeno_jednotek);
+
+    char *buf = malloc(delka_desitek + delka_jednotek + 1 + 1);
+    strcpy(buf, jmeno_desitek);
+    buf[delka_desitek] = ' ';
+    strcpy(buf + delka_desitek + 1, jmeno_jednotek);
+    return buf;
 }
 
 int main() {
-    char *nazev = nazev_cisla(3);
-    printf("%s\n", nazev);
-    free(nazev);
-
+    for (int cislo = 0; cislo < 100; cislo++) {
+        char *jmeno = jmeno_cisla(cislo);
+        printf("%d %s\n", cislo, jmeno);
+        free(jmeno);
+    }
+    char znak = 97;
+    printf("%c %d", znak, znak);
     return 0;
 }
