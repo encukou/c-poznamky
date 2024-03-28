@@ -2,6 +2,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+char *viceradkovy_literal = "abcd\n"
+"efgh"  "\n"  "ij\nkl";
+
 // vraci staticky retezec, nevolat free()
 char *nazev_jednoducheho_cisla(int n) {
     switch (n) {
@@ -75,6 +78,7 @@ int main() {
         free(jmeno);
     }
     char znak = 97;
-    printf("%c %d", znak, znak);
+    printf("%c %d\n", znak, znak);
+    printf("%s\n", viceradkovy_literal);
     return 0;
 }
