@@ -48,13 +48,13 @@ size_t delka_retezce(char *retezec) {
 
 // vraci dynamicky alokovanou pamet, kterou volajici musi uvolnit.
 char *jmeno_cisla(int cislo) {
-    if (cislo <= 20) {
-        return nazev_jednoducheho_cisla(cislo);
-    }
     int desitky = cislo / 10;
     int jednotky = cislo % 10;
-    if (jednotky == 0) {
-        return nazev_jednoducheho_cisla(cislo);
+    if (cislo <= 20 || jednotky == 0) {
+        char *nazev = nazev_jednoducheho_cisla(cislo);
+        char *buf = malloc(strlen(nazev) + 1);
+        strcpy(buf, nazev);
+        return buf;
     }
     char *jmeno_desitek = nazev_jednoducheho_cisla(desitky * 10);
     size_t delka_desitek = strlen(jmeno_desitek);
