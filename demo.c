@@ -2,41 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-// vraci staticky retezec, nevolat free()
-char *nazev_jednoducheho_cisla(int n) {
-    switch (n) {
-        case 0: return "nula";
-        case 1: return "jedna";
-        case 2: return "dva";
-        case 3: return "tri";
-        case 4: return "ctyri";
-        case 5: return "pet";
-        case 6: return "sest";
-        case 7: return "sedm";
-        case 8: return "osm";
-        case 9: return "devet";
-        case 10: return "deset";
-        case 11: return "jedenact";
-        case 12: return "dvanact";
-        case 13: return "trinact";
-        case 14: return "ctrnact";
-        case 15: return "patnact";
-        case 16: return "sestnact";
-        case 17: return "sedmnact";
-        case 18: return "osmnact";
-        case 19: return "devatenact";
-        case 20: return "dvacet";
-        case 30: return "tricet";
-        case 40: return "ctyricet";
-        case 50: return "padesat";
-        case 60: return "sedesat";
-        case 70: return "sedmdesat";
-        case 80: return "osmdesat";
-        case 90: return "devadesat";
-        default: return "nevim dal";
-    }
-}
-
 size_t delka_retezce(char *retezec) {
     size_t delka;
     for (delka = 0; *retezec; delka++, retezec++) {
@@ -45,6 +10,51 @@ size_t delka_retezce(char *retezec) {
 
     return delka;
 }
+
+
+char* alokuj_pamet(char *retezec) {
+    size_t delka = delka_retezce(retezec);
+    char *buf = malloc(delka);
+    strcpy(buf, retezec);
+    return buf;
+}
+
+
+// volat free()!
+char *nazev_jednoducheho_cisla(int n) {
+    switch (n) {
+        case 0: return alokuj_pamet("nula");
+        case 1: return alokuj_pamet("jedna");
+        case 2: return alokuj_pamet("dva");
+        case 3: return alokuj_pamet("tri");
+        case 4: return alokuj_pamet("ctyri");
+        case 5: return alokuj_pamet("pet");
+        case 6: return alokuj_pamet("sest");
+        case 7: return alokuj_pamet("sedm");
+        case 8: return alokuj_pamet("osm");
+        case 9: return alokuj_pamet("devet");
+        case 10: return alokuj_pamet("deset");
+        case 11: return alokuj_pamet("jedenact");
+        case 12: return alokuj_pamet("dvanact");
+        case 13: return alokuj_pamet("trinact");
+        case 14: return alokuj_pamet("ctrnact");
+        case 15: return alokuj_pamet("patnact");
+        case 16: return alokuj_pamet("sestnact");
+        case 17: return alokuj_pamet("sedmnact");
+        case 18: return alokuj_pamet("osmnact");
+        case 19: return alokuj_pamet("devatenact");
+        case 20: return alokuj_pamet("dvacet");
+        case 30: return alokuj_pamet("tricet");
+        case 40: return alokuj_pamet("ctyricet");
+        case 50: return alokuj_pamet("padesat");
+        case 60: return alokuj_pamet("sedesat");
+        case 70: return alokuj_pamet("sedmdesat");
+        case 80: return alokuj_pamet("osmdesat");
+        case 90: return alokuj_pamet("devadesat");
+        default: return alokuj_pamet("nevim dal");
+    }
+}
+
 
 char *jmeno_cisla(int cislo) {
     if (cislo <= 20) {
@@ -65,7 +75,7 @@ char *jmeno_cisla(int cislo) {
 
     buf[delka_desitek] = ' ';
     strcpy(buf + delka_desitek + 1, jmeno_jednotek); 
-    
+
     return buf;
 
 }
