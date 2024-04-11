@@ -1,77 +1,76 @@
 #include <stdio.h>
-#include <stdalign.h>
-#include <stddef.h>
 
-typedef char * Retezec;
+char *haha = "haha";
+
+typedef enum {
+    KOTATKO = 6,
+    STENATKO,
+} Druh;
+
+typedef struct Zviratko {
+    Druh druh;
+    const char *jmeno;
+    void (*udelej_zvuk)(const struct Zviratko*);
+} Zviratko;
 
 typedef struct {
-    int x;
-    int y;
-} Pozice;
+    Zviratko zvire;
+    const char *barva;
+    int vek;
+} Kotatko;
 
 typedef struct {
-    Retezec jmeno;
-    int pocet_zivotu;
-    char symbol;
-    // 3 nevyuzite byty
-    int zraneni;
-    Pozice pozice;
-    char symbol2;
-    // 3 nevyuzite byty
-} Prisera;
+    Zviratko zvire;
+    const char *oblibena_hracka;
+} Stenatko;
 
-void vypis_priseru(const Prisera *p) {
-    printf(
-        "Prisera %s, %d/%d, na pozici %d, %d\n",
-        p->jmeno,       // to same jako (*p).jmeno
-        p->pocet_zivotu - p->zraneni,
-        p->pocet_zivotu,
-        p->pozice.x,
-        p->pozice.y);
-    Prisera *m = (Prisera *)p;  // fuj fuj
-    m->zraneni += 1;
-    //p->pozice.x += 1;
+void zamnoukej(const Zviratko *k) {
+    printf("%s: mnau!\n", k->jmeno);
 }
 
+void zastekej(const Zviratko *z) {
+    if (z->druh == STENATKO) {
+        Stenatko *stene = (Stenatko*)z;
+        printf("%s: haf! Hraju si s %s\n", z->jmeno, stene->oblibena_hracka);
+    } else {
+        printf("%s se snazi stekat ale moc to nejde\n", z->jmeno);
+    }
+}
+
+void udelej_zvuk(const Zviratko *z) {
+    z->udelej_zvuk(z);
+}
+
+typedef void (*ukazatel_na_funkci_ktera_bere_zvire_a_vraci_void)(const Zviratko *);
+
 int main() {
-    unsigned long int cisla[] = {
-        [0] = 5,
-        [1] = 6,
-        [100] = 6,
+    Kotatko mourek = {
+        {.jmeno = "mourek", .druh=KOTATKO, .udelej_zvuk=zamnoukej},
+        .barva = "bila",
+        .vek = 5,
     };
-    Prisera karel = {
-        .jmeno = "Karel",
-        .pocet_zivotu = 28,
-        .pozice = {8, 6},
-        .zraneni = 2,
-        .symbol = 'W',
+    zamnoukej((Zviratko*)&mourek);
+    zastekej((Zviratko*)&mourek);
+
+    mourek.zvire.udelej_zvuk((Zviratko*)&mourek);
+    udelej_zvuk((Zviratko*)&mourek);
+
+    Stenatko azor = {
+        .zvire = {STENATKO, "azor", zastekej},
+        "kost"
     };
-    vypis_priseru(&karel);
-    vypis_priseru(&karel);
-    vypis_priseru(&karel);
-    vypis_priseru(&karel);
-    vypis_priseru(&karel);
+    zastekej((Zviratko*)&azor);
 
-    printf("%p\n", (void*) &karel);
-    printf("%p\n", (void*) &(karel.jmeno));
-    printf("%p\n", (void*) &(karel.pocet_zivotu));
-    printf("%p\n", (void*) &(karel.symbol));
-    printf("%p\n", (void*) &(karel.zraneni));
+    azor.zvire.udelej_zvuk((Zviratko*)&azor);
 
-    printf("%i\n", (int) sizeof(karel.zraneni));
-    printf("%i\n", (int) alignof(int));
-    printf("%i\n", (int) offsetof(Prisera, zraneni));
+    ukazatel_na_funkci_ktera_bere_zvire_a_vraci_void udelej_zvuk = zastekej;
 
-    char *p = (char *)&karel;
-    p += offsetof(Prisera, zraneni);
-    *p = 28;  // zapise 1 byte
-    *(int*)p = 28;  // zapise 4 byty
+    udelej_zvuk((Zviratko*)&azor);
 
-    vypis_priseru(&karel);
+    void (*f)(const Zviratko*) = zamnoukej;
+    f((Zviratko*)&mourek);
 
-    Pozice pozice = {6, 8};
-    pozice.y += 1;
-
-    Retezec jmeno = "Vera";
-    printf("%s %d\n", jmeno, (int)sizeof(Prisera));
+    printf("zastekej: %p\n", (void*)&zastekej);
+    printf("zamnoukej: %p\n", (void*)&zamnoukej);
+    printf("main: %p\n", (void*)&main);
 }
