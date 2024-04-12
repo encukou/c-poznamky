@@ -1,48 +1,57 @@
 #include <stdio.h>
 
-typedef char * Retezec;
+const int KOTATKO = 1;
+const int STENATKO = 2;
 
-// struct Prisera {
-//     Retezec jmeno;
-//     int pocet_zivotu;
-//     int zraneni;
-//     int pozice_x;
-//     int pozice_y;
-// };
-// typedef struct Prisera Prisera;
-
-// ekvivalent to:
 
 typedef struct {
-    Retezec jmeno;
-    int pocet_zivotu;
-    int zraneni;
-    int pozice_x;
-    int pozice_y;
-} Prisera;
+    int druh;
+    const char *jmeno;
+} Zviratko;
 
+typedef struct {
+    Zviratko z;
+    const char *barva;
+} Kotatko;
 
-void vypis_priseru(Prisera *p) {
-    printf("Prisera %s, %d/%d. na pozici %d, %d\n",
-    (*p).jmeno, // p->jmeno je to same co dereferencovani (*p).
-    p->pocet_zivotu - (*p).zraneni,
-    (*p).pocet_zivotu,
-    (*p).pozice_x,
-    (*p).pozice_y);
+typedef struct {
+    Zviratko z;
+    const char *oblibena_hracka;
+} Stenatko;
+
+void zamnoukej(Kotatko *k) {
+    printf("%s: mnau!\n", k->z.jmeno);
+}
+
+void zastekej(Zviratko *z) {
+    if (z->druh == STENATKO) {
+        Stenatko *stene = (Stenatko*)z;
+        printf("%s: haf! Hraju si s %s\n", z->jmeno, stene->oblibena_hracka);
+    } else {
+        printf("%s: se snazi stekat, ale to nejde\n", z->jmeno);
+    }
+    
 }
 
 int main() {
-
-    Prisera karel = {
-        .jmeno = "Karel", 
-        .pocet_zivotu = 28,
-        .zraneni = 2,
-        .pozice_x = 6,
-        .pozice_y = 8,
+    Kotatko mourek = {
+        {.jmeno = "mourek", .druh=KOTATKO},
+        .barva = "bila",
     };
+    zamnoukej(&mourek);
+    zastekej(&(mourek.z));
 
-    vypis_priseru(&karel);
-    Retezec jmeno = "Vera";
-    printf("%s\n", jmeno);
+    Stenatko azor = {
+        .z = {STENATKO, "azor"},
+        "kost"
+    };
+    zastekej(&azor.z);
+
+    udelej_zvuk = zastekej;
+    udelej_zvuk((Zviratko*)&azor);
+
+    printf("zastekej: %p\n", (void*)&zastekej);
+    printf("zamnoukej: %p\n", (void*)&zamnoukej);
+    printf("main: %p\n", (void*)&main);
 
 }
