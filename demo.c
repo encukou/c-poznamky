@@ -1,76 +1,53 @@
-#include <stdio.h>
+/* Spousteni:
 
-char *haha = "haha";
+$ gcc -Wall -std=c17 -pedantic demo.c -Wimplicit-fallthrough -o demo $(python3-config --cflags --libs --embed)
+$ ./demo
 
-typedef enum {
-    KOTATKO = 6,
-    STENATKO,
-} Druh;
+*/
 
-typedef struct Zviratko {
-    Druh druh;
-    const char *jmeno;
-    void (*udelej_zvuk)(const struct Zviratko*);
-} Zviratko;
-
-typedef struct {
-    Zviratko zvire;
-    const char *barva;
-    int vek;
-} Kotatko;
-
-typedef struct {
-    Zviratko zvire;
-    const char *oblibena_hracka;
-} Stenatko;
-
-void zamnoukej(const Zviratko *k) {
-    printf("%s: mnau!\n", k->jmeno);
-}
-
-void zastekej(const Zviratko *z) {
-    if (z->druh == STENATKO) {
-        Stenatko *stene = (Stenatko*)z;
-        printf("%s: haf! Hraju si s %s\n", z->jmeno, stene->oblibena_hracka);
-    } else {
-        printf("%s se snazi stekat ale moc to nejde\n", z->jmeno);
-    }
-}
-
-void udelej_zvuk(const Zviratko *z) {
-    z->udelej_zvuk(z);
-}
-
-typedef void (*ukazatel_na_funkci_ktera_bere_zvire_a_vraci_void)(const Zviratko *);
+#include <Python.h>
 
 int main() {
-    Kotatko mourek = {
-        {.jmeno = "mourek", .druh=KOTATKO, .udelej_zvuk=zamnoukej},
-        .barva = "bila",
-        .vek = 5,
-    };
-    zamnoukej((Zviratko*)&mourek);
-    zastekej((Zviratko*)&mourek);
+    Py_Initialize();
+    PyObject *globals = PyDict_New();
+    if (globals == NULL) {
+        printf("Nastala chyba pri vytvareni slovniku!\n");
+        PyErr_Print();
+        Py_Finalize();
+        return 1;
+    }
+    PyObject *vysledek = PyRun_String("a = 1.0 + 2\nprint(a)\ndel a", Py_file_input, globals, globals);
+    if (vysledek == NULL) {
+        printf("Nastala chyba pri provadeni programu!\n");
+        PyErr_Print();
+        Py_DECREF(globals);
+        Py_Finalize();
+        return 1;
+    }
+    Py_DECREF(vysledek);
 
-    mourek.zvire.udelej_zvuk((Zviratko*)&mourek);
-    udelej_zvuk((Zviratko*)&mourek);
+    PyObject *py_a = PyMapping_GetItemString(globals, "a");
+    if (py_a == NULL) {
+        printf("Nastala chyba pri ziskavani promenne!\n");
+        PyErr_Print();
+        Py_DECREF(globals);
+        Py_Finalize();
+        return 1;
+    }
+    long int c_a = PyLong_AsLong(py_a);
+    if (c_a == -1 && PyErr_Occurred()) {
+        printf("Nastala chyba pri prevodu na C long int!\n");
+        PyErr_Print();
+        Py_DECREF(py_a);
+        Py_DECREF(globals);
+        Py_Finalize();
+        return 1;
+    }
 
-    Stenatko azor = {
-        .zvire = {STENATKO, "azor", zastekej},
-        "kost"
-    };
-    zastekej((Zviratko*)&azor);
+    printf("1+2 = %ld\n", c_a);
 
-    azor.zvire.udelej_zvuk((Zviratko*)&azor);
-
-    ukazatel_na_funkci_ktera_bere_zvire_a_vraci_void udelej_zvuk = zastekej;
-
-    udelej_zvuk((Zviratko*)&azor);
-
-    void (*f)(const Zviratko*) = zamnoukej;
-    f((Zviratko*)&mourek);
-
-    printf("zastekej: %p\n", (void*)&zastekej);
-    printf("zamnoukej: %p\n", (void*)&zamnoukej);
-    printf("main: %p\n", (void*)&main);
+    Py_DECREF(py_a);
+    Py_DECREF(globals);
+    Py_Finalize();
+    return 0;
 }
