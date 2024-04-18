@@ -1,57 +1,49 @@
-#include <stdio.h>
-
-const int KOTATKO = 1;
-const int STENATKO = 2;
-
-
-typedef struct {
-    int druh;
-    const char *jmeno;
-} Zviratko;
-
-typedef struct {
-    Zviratko z;
-    const char *barva;
-} Kotatko;
-
-typedef struct {
-    Zviratko z;
-    const char *oblibena_hracka;
-} Stenatko;
-
-void zamnoukej(Kotatko *k) {
-    printf("%s: mnau!\n", k->z.jmeno);
-}
-
-void zastekej(Zviratko *z) {
-    if (z->druh == STENATKO) {
-        Stenatko *stene = (Stenatko*)z;
-        printf("%s: haf! Hraju si s %s\n", z->jmeno, stene->oblibena_hracka);
-    } else {
-        printf("%s: se snazi stekat, ale to nejde\n", z->jmeno);
-    }
-    
-}
+#include <Python.h>
 
 int main() {
-    Kotatko mourek = {
-        {.jmeno = "mourek", .druh=KOTATKO},
-        .barva = "bila",
-    };
-    zamnoukej(&mourek);
-    zastekej(&(mourek.z));
+    Py_Initialize();
+    PyObject *globals = PyDict_New();
+    if (globals == NULL) {
+        printf("Nastala chyba pri vytvareni slovniku!\n");
+        PyErr_Print();
+        Py_Finalize();
+        return 1;
+    }
 
-    Stenatko azor = {
-        .z = {STENATKO, "azor"},
-        "kost"
-    };
-    zastekej(&azor.z);
+    PyObject *vysledek = PyRun_String("a = 1.0 + 2\nprint(a)", Py_file_input, globals, globals);
+    if (vysledek == NULL) {
+        printf("Nastala chyba pri behu programu!\n");
+        PyErr_Print();
+        Py_DECREF(globals);
+        Py_Finalize();
+        return 1;
+    }
 
-    udelej_zvuk = zastekej;
-    udelej_zvuk((Zviratko*)&azor);
+    Py_DECREF(vysledek); 
 
-    printf("zastekej: %p\n", (void*)&zastekej);
-    printf("zamnoukej: %p\n", (void*)&zamnoukej);
-    printf("main: %p\n", (void*)&main);
+    PyObject *py_a = PyMapping_GetItemString(globals, "a");
+    if (py_a == NULL) {
+        printf("Nastala chyba pri ziskavani promenne!\n");
+        PyErr_Print();
+        Py_DECREF(globals); 
+        Py_Finalize();
+        return 1;
+    }
 
+    long int c_a = PyLong_AsLong(py_a);
+    if (c_a == -1 && PyErr_Occurred()) {
+        printf("Nastala chyba pri prevodu na C long int!\n");
+        PyErr_Print();
+        Py_DECREF(globals);
+        Py_DECREF(py_a);
+        Py_Finalize();
+        return 1;
+    }
+    printf("vysledek je %ld\n", c_a);
+
+    Py_DECREF(globals);
+    Py_DECREF(py_a);
+    Py_Finalize();
+
+    return 0;
 }
