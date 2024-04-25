@@ -1,49 +1,20 @@
+// gcc -Wall --std=c17 -pedantic demo.c -Wimplicit-fallthrough $(python3-config --cflags --ldflags) --shared -fPIC -o demo.so
+
+//  bez --embed pro python3-config
+
 #include <Python.h>
 
-int main() {
-    Py_Initialize();
-    PyObject *globals = PyDict_New();
-    if (globals == NULL) {
-        printf("Nastala chyba pri vytvareni slovniku!\n");
-        PyErr_Print();
-        Py_Finalize();
-        return 1;
-    }
+PyModuleDef demo_def = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "demo",
+    .m_doc = NULL,
+    .m_size = 0,
+    .m_methods = NULL,
+    .m_slots = NULL,
+};
 
-    PyObject *vysledek = PyRun_String("a = 1.0 + 2\nprint(a)", Py_file_input, globals, globals);
-    if (vysledek == NULL) {
-        printf("Nastala chyba pri behu programu!\n");
-        PyErr_Print();
-        Py_DECREF(globals);
-        Py_Finalize();
-        return 1;
-    }
-
-    Py_DECREF(vysledek); 
-
-    PyObject *py_a = PyMapping_GetItemString(globals, "a");
-    if (py_a == NULL) {
-        printf("Nastala chyba pri ziskavani promenne!\n");
-        PyErr_Print();
-        Py_DECREF(globals); 
-        Py_Finalize();
-        return 1;
-    }
-
-    long int c_a = PyLong_AsLong(py_a);
-    if (c_a == -1 && PyErr_Occurred()) {
-        printf("Nastala chyba pri prevodu na C long int!\n");
-        PyErr_Print();
-        Py_DECREF(globals);
-        Py_DECREF(py_a);
-        Py_Finalize();
-        return 1;
-    }
-    printf("vysledek je %ld\n", c_a);
-
-    Py_DECREF(globals);
-    Py_DECREF(py_a);
-    Py_Finalize();
-
-    return 0;
+PyMODINIT_FUNC
+PyInit_demo(void) {
+    // PyErr_SetString(PyExc_ValueError, "jeste neumim import");
+    return PyModuleDef_Init(&demo_def);
 }
