@@ -14,14 +14,36 @@ python -c 'import demo; print(demo); print(demo.get_none()); print(demo.add(1))'
 #include <Python.h>
 
 static PyObject *
-demo_get_none(PyObject *self, PyObject *unused)
+demo_get_none(PyObject *module, PyObject *unused)
 {
+    return PyUnicode_FromFormat("-%T-", Py_None);
     Py_RETURN_NONE;  // ekvivalentní k: `return Py_NewRef(Py_None);`
     // ten kdo zavolal demo_get_none musí někdy zavolat Py_DECREF(Py_None);
 }
 
+// dú: `sum`, která sečte jakýkoli počet argumentů
+
 static PyObject *
-demo_add(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
+demo_add_py(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    if (nargs != 3) {
+        PyErr_Format(PyExc_TypeError, "demo.add expected 3 arguments (got %zd)", nargs);
+        return NULL;
+    }
+    PyObject *intermediate = PyNumber_Add(args[0], args[1]);
+    if (intermediate == NULL) {
+        return NULL;
+    } // jinak mám na starost referenci `intermediate`
+    PyObject *result = PyNumber_Add(intermediate, args[2]);
+    Py_DECREF(intermediate);  // zahodím referenci
+    if (result == NULL) {
+        return NULL;
+    } // jinak mám na starost referenci `result`
+    return result;  // referenci pošlu dál
+}
+
+static PyObject *
+demo_add_c(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     if (nargs != 2) {
         PyErr_Format(PyExc_TypeError, "demo.add expected 2 arguments (got %zd)", nargs);
@@ -42,14 +64,15 @@ demo_add(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 
 static PyMethodDef demo_methods[] = {
     {"get_none", demo_get_none, METH_NOARGS, "Return None"},
-    {"add", (PyCFunction)demo_add, METH_FASTCALL, "Add 2 numbers"},
+    {"add_c", (PyCFunction)demo_add_c, METH_FASTCALL, "Add 2 numbers (C)"},
+    {"add_py", (PyCFunction)demo_add_py, METH_FASTCALL, "Add 3 numbers (Py)"},
     {0},
 };
 
 PyDoc_STRVAR(
     mod_doc,
-    "Modul kter\xc3\xbd" " um\xc3\xad" " skv\xc4\x9b"
-    "l\xc4\x9b" " v\xc4\x9b" "ci!"
+    "Modul kter\xc3\xbd um\xc3\xad skv\xc4\x9b"
+    "l\xc3\xa9 v\xc4\x9b" "ci!"
 );
 
 static PyModuleDef demo_def = {
