@@ -16,7 +16,6 @@ python -c 'import demo; print(demo); print(demo.get_none()); print(demo.add(1))'
 static PyObject *
 demo_get_none(PyObject *module, PyObject *unused)
 {
-    return PyUnicode_FromFormat("-%T-", Py_None);
     Py_RETURN_NONE;  // ekvivalentní k: `return Py_NewRef(Py_None);`
     // ten kdo zavolal demo_get_none musí někdy zavolat Py_DECREF(Py_None);
 }
