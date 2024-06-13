@@ -63,27 +63,35 @@ demo_add_py(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 static PyObject *
 demo_sum(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
+    PyObject *zero = NULL;
+    PyObject *result = NULL;
+    PyObject *intermediate = NULL;
+
     if (nargs == 0) {
-        return PyLong_FromLong(0);
+        result = PyLong_FromLong(0);
+        goto finally;
     }
 
-    PyObject *zero = PyLong_FromLong(0);
+    zero = PyLong_FromLong(0);
     if (zero == NULL) {
-        return NULL;
+        goto finally;
     }
 
-    PyObject *result = Py_NewRef(args[0]);
+    intermediate = Py_NewRef(args[0]);
     for (Py_ssize_t i = 1; i < nargs; i++) {
-        PyObject *call_args[] = {result, args[i], zero};
+        PyObject *call_args[] = {intermediate, args[i], zero};
         PyObject *new = demo_add_py(self, call_args, 3);
-        Py_CLEAR(result);
+        Py_CLEAR(intermediate);
         if (new == NULL) {
-            Py_CLEAR(zero);
-            return NULL;
+            goto finally;
         }
-        result = new;
+        intermediate = new;
     }
+    result = intermediate;
+    intermediate = NULL;
+finally:
     Py_CLEAR(zero);
+    Py_CLEAR(intermediate);
     return result;
 }
 
