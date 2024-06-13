@@ -64,25 +64,18 @@ static PyObject *
 demo_sum(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     if (nargs == 0) {
-        PyErr_Format(PyExc_TypeError, "You must specify at least one argument");
-        return NULL;
+        return PyLong_FromLong(0);
     }
-    // corner case - nepotrebujeme vubec nic pocitat
-    if (nargs == 1) {
-        return args[0];
-    }
-    // inicializace hodnot
-    PyObject *intermediate = args[0];
-    PyObject *result;
-    for (int i = 1; i < nargs; i++) {
-        result = PyNumber_Add(intermediate, args[i]);
-        if (result == NULL) {
+
+    PyObject *result = Py_NewRef(args[0]);
+    for (Py_ssize_t i = 1; i < nargs; i++) {
+        PyObject *new = PyNumber_Add(result, args[i]);
+        Py_CLEAR(result);
+        if (new == NULL) {
             return NULL;
         }
-        intermediate = result;
-        Py_DECREF(intermediate);  // zahodím referenci - zde?
+        result = new;
     }
-    Py_DECREF(intermediate);  // zahodím referenci - nebo zde?
     return result;
 }
 
@@ -91,7 +84,7 @@ static PyMethodDef demo_methods[] = {
     {"get_none", demo_get_none, METH_NOARGS, "Return None"},
     {"add_c", (PyCFunction)demo_add_c, METH_FASTCALL, "Add 2 numbers (C)"},
     {"add_py", (PyCFunction)demo_add_py, METH_FASTCALL, "Add 3 numbers (Py)"},
-    {"sum", (PyCFunction)demo_sum, METH_FASTCALL, "Sum any number of numbers (Py)"},
+    {"sum", (PyCFunction)demo_sum, METH_FASTCALL, "Add any number of numbers (Py)"},
     {0},
 };
 
