@@ -2,7 +2,7 @@
 
 Překlad:
 
-gcc -Wall -std=c17 -pedantic demo.c -Wimplicit-fallthrough -o demo.so $(python3-config --cflags --ldflags) --shared -fPIC
+gcc -Wall -std=c99 -pedantic demo.c -Wimplicit-fallthrough -o demo.so $(python3-config --cflags --ldflags) --shared -fPIC
 
 (bez --embed pro python3-config; s --shared pro gcc; výstupní soubor (-o) má příponu .so)
 
