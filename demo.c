@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "demo.h"
 
 typedef struct llist_entry {
@@ -54,3 +55,21 @@ void llist_free(llist_type *list)
     }
     free(list);
 }
+
+int llist_dump(llist_type *list)
+{
+    printf("Contents of list %p:\n", (void*)list);
+    /*
+    llist_entry *current = list->head;
+    while (current) {
+        printf("- %d\n", current->item);
+        current = current->prev;
+    }
+    */
+    for (llist_entry *current = list->head; current; current = current->prev) {
+        printf("- %d\n", current->item);
+    }
+    printf("End of list %p.\n", (void*)list);
+    return 0;
+}
+

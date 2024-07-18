@@ -46,8 +46,13 @@ int main() {
 
     list = llist_new();
     assert(list);
+    llist_dump(list);
+
     llist_push(list, 7);
     llist_push(list, 8);
     llist_push(list, 12);
+
+    llist_dump(list);
+
     llist_free(list);
 }
