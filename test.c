@@ -19,7 +19,7 @@ int main() {
     assert(result == 0);
     assert(entry == 7);
 
-    llist_pop(list, &entry);
+    result = llist_pop(list, &entry);
     assert(result == -1);
     assert(entry == 0);
 
@@ -30,20 +30,27 @@ int main() {
     result = llist_push(list, 12);
     assert(result == 0);
 
-    llist_pop(list, &entry);
+    result = llist_pop(list, &entry);
     assert(result == 0);
     assert(entry == 12);
-    llist_pop(list, &entry);
+    result = llist_pop(list, &entry);
     assert(result == 0);
     assert(entry == 8);
-    llist_pop(list, &entry);
+    result = llist_pop(list, &entry);
     assert(result == 0);
     assert(entry == 7);
 
-    llist_pop(list, &entry);
+    result = llist_pop(list, &entry);
     assert(result == -1);
     assert(entry == 0);
 
+    llist_free(list);
+
+    list = llist_new();
+    assert(list);
+    result = llist_push(list, 7);
+    result = llist_push(list, 8);
+    result = llist_push(list, 12);
     llist_free(list);
 
 }
