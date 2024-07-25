@@ -73,3 +73,23 @@ int llist_dump(llist_type *list)
     return 0;
 }
 
+ssize_t llist_count(llist_type *list)
+{
+    ssize_t cnt = 0;
+    for (llist_entry *current = list->head; current; current = current->prev) {
+        cnt++;
+    }
+    return cnt;
+}
+
+int llist_get(llist_type *list, ssize_t n, llist_item_type *result) {
+    for (llist_entry *current = list->head; current; current = current->prev) {
+        if (n-- == 0) {
+            *result = current->item;
+            return 0;
+        }
+    }
+    // we iterated till the end and haven't found the nth element
+    *result = 0;
+    return -1;
+}
