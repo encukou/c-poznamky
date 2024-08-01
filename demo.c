@@ -76,35 +76,21 @@ int llist_dump(llist_type *list)
 
 ssize_t llist_count(llist_type *list)
 {
-    if (list->head == NULL) {
-        return -1;
-    }
-    int cnt = 0;
-    llist_entry *current = list->head;
-    while (current) {
+    ssize_t cnt = 0;
+    for (llist_entry *current = list->head; current; current = current->prev) {
         cnt++;
-        current = current->prev;
     }
     return cnt;
 }
 
 int llist_get(llist_type *list, ssize_t n, llist_item_type *result) {
-    llist_entry *current = list->head;
-    // breaking condition - the list is empty
-    if (current == NULL) {
-        goto finally;
-    }
-    int cnt = 0;
-    while (current) {
-        if (n == cnt) {
+    for (llist_entry *current = list->head; current; current = current->prev) {
+        if (n-- == 0) {
             *result = current->item;
             return 0;
         }
-        current = current->prev;
-        cnt++;
     }
-// we iterated till the end and haven't found the nth element
-finally:
+    // we iterated till the end and haven't found the nth element
     *result = 0;
     return -1;
 }
