@@ -93,3 +93,18 @@ int llist_get(llist_type *list, ssize_t n, llist_item_type *result) {
     *result = 0;
     return -1;
 }
+
+ssize_t llist_remove_first_n(llist_type *list, ssize_t n)
+{
+    llist_item_type value;
+    for (ssize_t n_popped_items = 0; n_popped_items < n; n_popped_items++) {
+        if (list->head == NULL) {
+            // list is empty
+            return n_popped_items;
+        }
+        if (llist_pop(list, &value) == -1) {
+            return -1;
+        }
+    }
+    return n;
+}
