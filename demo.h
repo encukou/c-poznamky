@@ -34,3 +34,10 @@ int llist_remove(llist_type *list, ssize_t n, llist_item_type *result);
 // remove n'th element
 // on error, returns -1, sets *result to zero
 // on success, returns 0 and sets *result to removed item
+
+// d.ú.
+ssize_t llist_remove_first_n(llist_type *list, ssize_t n);
+// remove up to n elements from the start of the list
+// (this may be less than n if the list is short)
+// on error, returns -1
+// on success, returns the number of removed elements

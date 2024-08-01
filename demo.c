@@ -95,26 +95,57 @@ int llist_get(llist_type *list, ssize_t n, llist_item_type *result) {
     return -1;
 }
 
-int llist_remove(llist_type *list, ssize_t n, llist_item_type *result)
+ssize_t llist_remove_first_n(llist_type *list, ssize_t n)
 {
+    llist_item_type ignored_result;
+
     llist_entry *current = list->head;
-    // breaking condition - the list is empty
-    if (current == NULL) {
-        goto finally;
-    }
-    int cnt = 0;
+    ssize_t cnt = 0;
     while (current) {
-        if (n == cnt) {
-            *result = current->item;
-            llist_entry *to_be_removed = list->head;
-            list->head = list->head->prev;
-            free(to_be_removed);
+        if (cnt < n) {
+            int result = llist_pop(list, &ignored_result);
+            assert(result == 0);
+            cnt++;
+        }
+        else {
             return 0;
         }
-        current = current->prev;
-        cnt++;
     }
-finally:
+
+// this doesn't do the same as the while loop. why? (segfault)
+    // for (llist_entry *current = list->head; current; current = current->prev) {
+    //     if (n-- > 0) {
+    //         int result = llist_pop(list, &ignored_result);
+    //         assert(result == 0);
+    //     } else {
+    //         return 0;
+    //     }
+    // }
+    return -1;
+}
+
+int llist_remove(llist_type *list, ssize_t n, llist_item_type *result)
+{
+    if (n == 0) {
+        int ret_val = llist_pop(list, result);
+        return ret_val;
+    }
+
+    for (llist_entry *current = list->head; current; current = current->prev) {
+        // stopping one item before the one I want to remove
+        if (n-- == 1) {
+            if (current->prev == NULL) {
+                *result = 0;
+                return -1;
+            }
+            llist_entry *entry_to_delete = current->prev;
+            *result = current->prev->item;
+            current->prev = current->prev->prev;
+            free(entry_to_delete);
+            return 0;
+        }
+    }
+    // // we iterated till the end and haven't found the nth element
     *result = 0;
     return -1;
 }
