@@ -108,3 +108,25 @@ ssize_t llist_remove_first_n(llist_type *list, ssize_t n)
     }
     return n;
 }
+
+int llist_remove(llist_type *list, ssize_t n, llist_item_type *result)
+{
+    // `*ptr_to_update` points to the current entry.
+    // `ptr_to_update` is the pointer which we need to update if we remove
+    //   this entry.
+    for (
+        llist_entry **ptr_to_update = &list->head;
+        *ptr_to_update != (llist_entry *)NULL;
+        ptr_to_update = &((*ptr_to_update)->prev)
+    ) {
+        if (n-- == 0) {
+            llist_entry *entry_to_delete = *ptr_to_update;
+            *result = entry_to_delete->item;
+            *ptr_to_update = entry_to_delete->prev;
+            free(entry_to_delete);
+            return 0;
+        }
+    }
+    *result = 0;
+    return -1;
+}
