@@ -13,6 +13,7 @@ typedef struct llist_entry {
 
 struct llist_type {
     struct llist_entry *head;
+    ssize_t count;
 };
 
 
@@ -20,6 +21,7 @@ llist_type *llist_new(void)
 {
     llist_type *list = malloc(sizeof(llist_type));
     list->head = NULL;
+    list->count = 0;
     return list;
 }
 
@@ -34,6 +36,7 @@ int llist_push(llist_type *list, llist_item_type item)
     new_entry->prev = list->head;
     // list->head must be set to the latest object in the llist
     list->head = new_entry;
+    list->count++;
     return 0;
 }
 
@@ -48,6 +51,7 @@ int llist_pop(llist_type *list, llist_item_type *result)
     llist_entry *current_entry = list->head;
     list->head = list->head->prev;
     free(current_entry);
+    list->count--;
     return 0;
 }
 
@@ -57,6 +61,7 @@ void llist_free(llist_type *list)
     while (list->head) {
         int result = llist_pop(list, &ignored_result);
         assert(result == 0);
+        list->count = 0;
     }
     free(list);
 }
@@ -76,12 +81,7 @@ int llist_dump(llist_type *list)
 
 ssize_t llist_count(llist_type *list)
 {
-    // return list.count;
-    ssize_t cnt = 0;
-    for (llist_entry *current = list->head; current; current = current->prev) {
-        cnt++;
-    }
-    return cnt;
+    return list->count;
 }
 
 int llist_get(llist_type *list, ssize_t n, llist_item_type *result) {
@@ -126,6 +126,7 @@ int llist_remove(llist_type *list, ssize_t n, llist_item_type *result)
             *result = entry_to_delete->item;
             *ptr_to_update = entry_to_delete->prev;
             free(entry_to_delete);
+            list->count--;
             return 0;
         }
     }
