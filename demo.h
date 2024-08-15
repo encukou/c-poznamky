@@ -38,3 +38,20 @@ int llist_remove(llist_type *list, ssize_t n, llist_item_type *result);
 // remove n'th element
 // on error, returns -1, sets *result to zero
 // on success, returns 0 and sets *result to removed item
+
+// dú:
+// - llist_dump prints the contents in both directions
+
+// dú:
+void llist_check(llist_type *list);
+// asserts that each entry is correct:
+// - if there's a next item, its prev points to the current one
+// - if there's a prev item, its next points to the current one
+// asserts that count is correct
+
+#ifdef NDEBUG
+// In "release mode", llist_check does nothing
+#define llist_check(list)
+#endif
+
+
