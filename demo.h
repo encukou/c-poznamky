@@ -38,6 +38,3 @@ int llist_remove(llist_type *list, ssize_t n, llist_item_type *result);
 // remove n'th element
 // on error, returns -1, sets *result to zero
 // on success, returns 0 and sets *result to removed item
-
-// d.ú.
-// Make llist_count faster: it should read a single variable.
