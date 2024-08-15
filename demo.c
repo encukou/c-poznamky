@@ -61,7 +61,6 @@ void llist_free(llist_type *list)
     while (list->head) {
         int result = llist_pop(list, &ignored_result);
         assert(result == 0);
-        list->count = 0;
     }
     free(list);
 }

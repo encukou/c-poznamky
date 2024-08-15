@@ -18,28 +18,39 @@ int llist_dump(llist_type *list);
 // on error, returns -1
 // on success, returns 0
 
-// d.ú.
 ssize_t llist_count(llist_type *list);
 // return number of elements
 // on error, returns -1
 
-// d.ú.
 int llist_get(llist_type *list, ssize_t n, llist_item_type *result);
 // return n'th element
 // on error, returns -1, sets *result to zero
 // on success, returns 0 and sets *result
 
-// d.ú.
 int llist_remove(llist_type *list, ssize_t n, llist_item_type *result);
 // remove n'th element
 // on error, returns -1, sets *result to zero
 // on success, returns 0 and sets *result to removed item
 
-// d.ú.
 ssize_t llist_remove_first_n(llist_type *list, ssize_t n);
 // remove up to n elements from the start of the list
 // (this may be less than n if the list is short)
 // on error, returns -1
 // on success, returns the number of removed elements
 
-// llist_count refactor: it should read a single variable
+// d.u.
+int llist_dump(llist_type *list);
+// print list contents in both directions
+// on error, returns -1
+// on success, returns 0
+
+void llist_check(llist_type *list);
+// asserts that each entry of the list is correct:
+//  if there's a next item, its prev points to the current one
+//  if there's a prev item, its next points to the current one
+//  assert that count is correct
+
+#ifdef NDEBUG
+// in "release mode", llist_check does nothing
+#define llist_check(list)
+#endif
