@@ -76,6 +76,7 @@ int llist_dump(llist_type *list)
 
 ssize_t llist_count(llist_type *list)
 {
+    // return list.count;
     ssize_t cnt = 0;
     for (llist_entry *current = list->head; current; current = current->prev) {
         cnt++;
@@ -99,53 +100,35 @@ ssize_t llist_remove_first_n(llist_type *list, ssize_t n)
 {
     llist_item_type ignored_result;
 
-    llist_entry *current = list->head;
-    ssize_t cnt = 0;
-    while (current) {
-        if (cnt < n) {
-            int result = llist_pop(list, &ignored_result);
-            assert(result == 0);
-            cnt++;
+    for (ssize_t n_popped_items = 0; n_popped_items < n;n_popped_items++) {
+        if (list->head == NULL) {
+            return n_popped_items;
         }
-        else {
-            return 0;
+        if (llist_pop(list, &ignored_result) == -1) {
+            return -1;
         }
     }
-
-// this doesn't do the same as the while loop. why? (segfault)
-    // for (llist_entry *current = list->head; current; current = current->prev) {
-    //     if (n-- > 0) {
-    //         int result = llist_pop(list, &ignored_result);
-    //         assert(result == 0);
-    //     } else {
-    //         return 0;
-    //     }
-    // }
-    return -1;
+    return n;
 }
 
 int llist_remove(llist_type *list, ssize_t n, llist_item_type *result)
 {
-    if (n == 0) {
-        int ret_val = llist_pop(list, result);
-        return ret_val;
-    }
+// *ptr_to_update points to the current entry
+// ptr_to_update is the pointer which we need to update if we remove that entry
 
-    for (llist_entry *current = list->head; current; current = current->prev) {
-        // stopping one item before the one I want to remove
-        if (n-- == 1) {
-            if (current->prev == NULL) {
-                *result = 0;
-                return -1;
-            }
-            llist_entry *entry_to_delete = current->prev;
-            *result = current->prev->item;
-            current->prev = current->prev->prev;
+    for (
+        llist_entry **ptr_to_update = &list->head;
+         *ptr_to_update != (llist_entry *)NULL;
+         ptr_to_update = &((*ptr_to_update)->prev)
+    ) {
+        if (n-- == 0) {
+            llist_entry *entry_to_delete = *ptr_to_update;
+            *result = entry_to_delete->item;
+            *ptr_to_update = entry_to_delete->prev;
             free(entry_to_delete);
             return 0;
         }
     }
-    // // we iterated till the end and haven't found the nth element
     *result = 0;
     return -1;
 }
