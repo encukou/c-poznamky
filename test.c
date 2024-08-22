@@ -6,11 +6,11 @@ int main() {
     assert(list);
 
     llist_item_type entry;
-    
+
     int result = llist_pop(list, &entry);
     assert(result == -1);
     assert(entry == 0);
-    
+
     result = llist_push(list, 7);
     assert(result == 0);
 
@@ -159,5 +159,4 @@ int main() {
     result = llist_count(list);
     assert(result == 0);
     llist_free(list);
-
 }

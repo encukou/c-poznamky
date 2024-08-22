@@ -22,9 +22,13 @@ struct llist_type {
 llist_type *llist_new(void)
 {
     llist_type *list = malloc(sizeof(llist_type));
+    if (list == NULL) {
+        return NULL;
+    }
     list->head = NULL;
     list->tail = NULL;
     list->count = 0;
+    llist_check(list);
     return list;
 }
 
@@ -59,14 +63,16 @@ int llist_pop(llist_type *list, llist_item_type *result)
         *result = 0;
         return -1;
     }
-    *result = list->head->item;
     llist_entry *current_entry = list->head;
-    list->head = list->head->prev;
+    *result = current_entry->item;
+    list->head = current_entry->prev;
     // if I popped the last element, there's no next at all
     // LLM-aided (dereference list->head after reassigning the value)
-    if (list->head != NULL) {
+    if (list->head) {
         // update the current last element of the list - there's no next after it
         list->head->next = NULL;
+    } else {
+        list->tail = NULL;
     }
     free(current_entry);
     list->count--;
@@ -82,11 +88,11 @@ int llist_popleft(llist_type *list, llist_item_type *result)
         return -1;
     }
 
-    *result = list->tail->item;
     llist_entry *current_entry = list->tail;
-    list->tail = list->tail->next;
+    *result = current_entry->item;
+    list->tail = current_entry->next;
     // if I popped the last element, there's no next at all
-    if (list->tail != NULL) {
+    if (list->tail) {
         // update the current last element of the list - there's no next after it
         list->tail->prev = NULL;
     }
@@ -130,28 +136,37 @@ int llist_dump(llist_type *list)
 
 void llist_check(llist_type *list) {
     if (list->head == NULL) {
-        return;
+        assert(list->tail == NULL);
+        assert(list->count == 0);
     }
+    printf("[Head (%p) to tail (%p):\n", (void*)list->head, (void*)list->tail);
     // from head to tail
     ssize_t cnt_from_head = 0;
-    llist_entry *current = list->head;
-    while (current) {
-        if (current->next != NULL) {
-            assert(current->next->prev == current);
+    for (llist_entry *current = list->head; current; current = current->prev) {
+        printf("  - %d: %p next:%p prev:%p\n", current->item, (void*)current,
+               (void*)current->next, (void*)current->prev);
+        if (current->prev) {
+            assert(current->prev->next == current);
+        } else {
+            assert(current == list->tail);
         }
-        current = current->prev;
         cnt_from_head++;
     }
+    printf("]\n");
     // the other way around
+    printf("[Tail (%p) to head (%p):\n", (void*)list->tail, (void*)list->head);
     ssize_t cnt_from_tail = 0;
-    current = list->tail;
-    while (current) {
-        if (current->prev != NULL) {
-            assert(current->prev->next == current);
+    for (llist_entry *current = list->tail; current; current = current->next) {
+        printf("  - %d: %p next:%p prev:%p\n", current->item, (void*)current,
+               (void*)current->next, (void*)current->prev);
+        if (current->next) {
+            assert(current->next->prev == current);
+        } else {
+            assert(current == list->head);
         }
-        current = current->next;
         cnt_from_tail++;
     }
+    printf("]\n");
     assert(cnt_from_head == cnt_from_tail);
     assert(cnt_from_head == list->count);
 }
@@ -178,14 +193,16 @@ ssize_t llist_remove_first_n(llist_type *list, ssize_t n)
     llist_item_type ignored_result;
 
     for (ssize_t n_popped_items = 0; n_popped_items < n;n_popped_items++) {
-        llist_check(list);
         if (list->head == NULL) {
+            llist_check(list);
             return n_popped_items;
         }
         if (llist_pop(list, &ignored_result) == -1) {
+            llist_check(list);
             return -1;
         }
     }
+    llist_check(list);
     return n;
 }
 
