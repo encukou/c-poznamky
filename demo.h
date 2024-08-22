@@ -52,5 +52,6 @@ void llist_check(llist_type *list);
 
 #ifdef NDEBUG
 // in "release mode", llist_check does nothing
+// "assert" is skipped there
 #define llist_check(list)
 #endif
