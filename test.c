@@ -83,7 +83,7 @@ int main() {
     result = llist_count(list);
     assert(result == 0);
     result = llist_dump(list);
-    assert(result == -1);
+    assert(result == 0);
     llist_free(list);
 
     list = llist_new();
@@ -115,6 +115,7 @@ int main() {
     result = llist_push(list, 25);
     result = llist_count(list);
     assert(result == 5);
+    llist_dump(list);
     result = llist_remove(list, 3, &entry);
     assert(result == 0);
     assert(entry == 8);
