@@ -1,133 +1,104 @@
-// gcc -Wall -std=c99 -pedantic demo.c test.c -o demo && ./demo
-
-#include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include "demo.h"
+#include <stdlib.h>
 
-typedef struct llist_entry {
-    llist_item_type item;
-    struct llist_entry *prev;
-} llist_entry;
+typedef struct {
+    char *data;
+    size_t size;
+    size_t allocated;
+} word;
 
-struct llist_type {
-    struct llist_entry *head;
-    ssize_t count;
-};
-
-llist_type *llist_new(void)
-{
-    llist_type *list = malloc(sizeof(llist_type));
-    list->head = NULL;
-    list->count = 0;
-    return list;
-}
-
-int llist_push(llist_type *list, llist_item_type item)
-{
-    llist_entry *new_entry = malloc(sizeof(llist_entry));
-    if (new_entry == NULL) {
-        return -1;
+word *word_alloc(void) {
+    word *result = malloc(sizeof(word));
+    if (!result) {
+        return NULL;
     }
-    new_entry->item = item;
-    new_entry->prev = list->head;
-    list->head = new_entry;
-    list->count++;
-    return 0;
+    result->data = NULL;
+    result->size = 0;
+    result->allocated = 0;
+    return result;
+}
+void word_free(word *w) {
+    free(w);
+}
+int word_add_char(word *w, char c) {  // return 0 on success, -1 on error
+    /* - if there's not enough space for one more char
+     *   - allocate a new buffer (~min. 4 chars, 2× bigger than the old one)
+     *   - copy old data (if old data is not NULL)
+     *   - dealloc the old buffer
+     *   - set `allocated`
+     * - set the new character
+     * - size++
+     */
+}
+char *word_get_data(word *w) {
+    /* - ensure data is followed by NUL
+     * - return data
+     */
 }
 
-int llist_pop(llist_type *list, llist_item_type *result)
-{
-    if (list->head == NULL) {
-        *result = 0;
-        return -1;
+
+
+const char INPUT_FILE_NAME[] = "rur-processed.txt";
+
+const size_t BUF_SIZE = 1024;
+
+int main(void) {
+    int result = 1;
+    FILE* soubor = NULL;
+    word *current_word = NULL;
+
+    soubor = fopen(INPUT_FILE_NAME, "r");
+    if (!soubor) {
+        fprintf(stderr, "could not open file %s\n", INPUT_FILE_NAME);
+        goto finally;
     }
-    *result = list->head->item;
-    llist_entry *prev_head = list->head;
-    list->head = list->head->prev;
-    free(prev_head);
-    list->count--;
-    return 0;
-}
-
-void llist_free(llist_type *list)
-{
-    llist_item_type ignored_result;
-    while (list->head) {
-        int result = llist_pop(list, &ignored_result);
-        assert(result == 0);
+    char buffer[BUF_SIZE + 1];
+    size_t read_count;
+    current_word = word_alloc();
+    if (!current_word) {
+        fprintf(stderr, "could not allocate memory\n");
+        goto finally;
     }
-    free(list);
-}
-
-int llist_dump(llist_type *list)
-{
-    printf("Contents of list %p:\n", (void*)list);
-    /*
-    llist_entry *current = list->head;
-    while (current) {
-        printf("- %d\n", current->item);
-        current = current->prev;
-    }
-    */
-    for (llist_entry *current = list->head; current; current = current->prev) {
-        printf("- %d\n", current->item);
-    }
-    printf("End of list %p.\n", (void*)list);
-    return 0;
-}
-
-ssize_t llist_count(llist_type *list)
-{
-    return list->count;
-}
-
-int llist_get(llist_type *list, ssize_t n, llist_item_type *result) {
-    for (llist_entry *current = list->head; current; current = current->prev) {
-        if (n-- == 0) {
-            *result = current->item;
-            return 0;
+    while ((read_count = fread(buffer, 1, BUF_SIZE, soubor))) {
+        printf("Nacetl jsem %zd bajtu!\n", read_count);
+        buffer[read_count] = 0;
+        for (size_t i = 0; i < read_count; i++) {
+            char c = buffer[i];
+            if ((c == ' ') || (c == '\n')) {
+                char *data = word_get_data(current_word);
+                if (!data) {
+                    fprintf(stderr, "could not get word data\n");
+                    goto finally;
+                }
+                printf("slovo: %s\n", data);
+                word_free(current_word);
+                current_word = word_alloc();
+                if (!current_word) {
+                    fprintf(stderr, "could not allocate memory\n");
+                    goto finally;
+                }
+            } else {
+                if (word_add_char(current_word, c) < 0) {
+                    fprintf(stderr, "could not add character to word\n");
+                    goto finally;
+                }
+            }
         }
     }
-    // we iterated till the end and haven't found the nth element
-    *result = 0;
-    return -1;
-}
-
-ssize_t llist_remove_first_n(llist_type *list, ssize_t n)
-{
-    llist_item_type value;
-    for (ssize_t n_popped_items = 0; n_popped_items < n; n_popped_items++) {
-        if (list->head == NULL) {
-            // list is empty
-            return n_popped_items;
-        }
-        if (llist_pop(list, &value) == -1) {
-            return -1;
-        }
+    char *data = word_get_data(current_word);
+    if (!data) {
+        fprintf(stderr, "could not get word data\n");
+        goto finally;
     }
-    return n;
-}
+    printf("slovo: %s\n", data);
 
-int llist_remove(llist_type *list, ssize_t n, llist_item_type *result)
-{
-    // `*ptr_to_update` points to the current entry.
-    // `ptr_to_update` is the pointer which we need to update if we remove
-    //   this entry.
-    for (
-        llist_entry **ptr_to_update = &list->head;
-        *ptr_to_update != (llist_entry *)NULL;
-        ptr_to_update = &((*ptr_to_update)->prev)
-    ) {
-        if (n-- == 0) {
-            llist_entry *entry_to_delete = *ptr_to_update;
-            *result = entry_to_delete->item;
-            *ptr_to_update = entry_to_delete->prev;
-            free(entry_to_delete);
-            list->count--;
-            return 0;
-        }
+    result = 0;
+finally:
+    if (soubor) {
+        fclose(soubor);
     }
-    *result = 0;
-    return -1;
+    if (current_word) {
+        word_free(current_word);
+    }
+    return result;
 }
