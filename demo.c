@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "word.h"
+#include "dict.h"
 
 
 const char INPUT_FILE_NAME[] = "rur-processed.txt";
@@ -12,6 +13,11 @@ int main(void) {
     FILE* soubor = NULL;
     word *current_word = NULL;
     char buffer[BUF_SIZE + 1];
+    dict *words = dict_alloc();
+    if (!words) {
+        fprintf(stderr, "could not allocate a dict\n");
+        goto finally;
+    }
 
     soubor = fopen(INPUT_FILE_NAME, "r");
     if (!soubor) {
@@ -37,7 +43,22 @@ int main(void) {
                         goto finally;
                     }
                     printf("slovo: %s\n", data);
-                    word_free(current_word);
+
+                    int count;
+                    int result = dict_get(words, current_word, &count);
+                    if (result < 0) {
+                        fprintf(stderr, "could not get value from dict\n");
+                        goto finally;
+                    } else if (result == 0) {
+                        count = 0;
+                    }
+                    result = dict_set(words, current_word, count + 1);
+                    current_word = NULL;
+                    if (result < 0) {
+                        fprintf(stderr, "could not set value in dict\n");
+                        goto finally;
+                    }
+
                     current_word = word_alloc();
                     if (!current_word) {
                         fprintf(stderr, "could not allocate memory\n");
@@ -53,6 +74,7 @@ int main(void) {
         }
     }
     if (word_size(current_word)) {
+        // TODO: add 1 to the value
         char *data = word_get_data(current_word);
         if (!data) {
             fprintf(stderr, "could not get word data\n");
@@ -61,6 +83,8 @@ int main(void) {
         printf("slovo: %s\n", data);
     }
 
+    // TODO: call get(d, "helena") and print out value
+
     result = 0;
 finally:
     if (soubor) {
@@ -68,6 +92,9 @@ finally:
     }
     if (current_word) {
         word_free(current_word);
+    }
+    if (words) {
+        dict_free(words);
     }
     return result;
 }
