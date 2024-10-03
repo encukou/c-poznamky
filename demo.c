@@ -12,6 +12,7 @@ int main(void) {
     int result = 1;
     FILE* soubor = NULL;
     word *current_word = NULL;
+    word *wanted_key = NULL;
     char buffer[BUF_SIZE + 1];
     dict *words = dict_alloc();
     if (!words) {
@@ -83,7 +84,23 @@ int main(void) {
         printf("slovo: %s\n", data);
     }
 
-    // TODO: call get(d, "helena") and print out value
+    int count;
+    wanted_key = word_alloc();
+    if (!wanted_key) {
+        fprintf(stderr, "could not allocate wanted_key\n");
+        goto finally;
+    }
+    for (char *ptr="helena"; *ptr; ptr++) {
+        if (word_add_char(wanted_key, *ptr) < 0) {
+            fprintf(stderr, "could not add letter to wanted_key\n");
+            goto finally;
+        }
+    }
+    if (dict_get(words, wanted_key, &count) < 0) {
+        fprintf(stderr, "could not get dict value\n");
+        goto finally;
+    }
+    printf("value: %d\n", count);
 
     result = 0;
 finally:
@@ -92,6 +109,9 @@ finally:
     }
     if (current_word) {
         word_free(current_word);
+    }
+    if (wanted_key) {
+        word_free(wanted_key);
     }
     if (words) {
         dict_free(words);
