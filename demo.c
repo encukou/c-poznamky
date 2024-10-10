@@ -13,6 +13,7 @@ int main(void) {
     FILE* soubor = NULL;
     word *current_word = NULL;
     word *wanted_key = NULL;
+    dict_iterator *iterator = NULL;
     char buffer[BUF_SIZE + 1];
     dict *words = dict_alloc();
     if (!words) {
@@ -84,6 +85,9 @@ int main(void) {
         printf("slovo: %s\n", data);
     }
 
+    word_free(current_word);
+    current_word = NULL;
+
     int count;
     wanted_key = word_alloc();
     if (!wanted_key) {
@@ -102,6 +106,31 @@ int main(void) {
     }
     printf("value: %d\n", count);
 
+    iterator = dict_iterator_new(words);
+    if (!iterator) {
+        fprintf(stderr, "could not start iterating dict\n");
+        goto finally;
+    }
+    int iteration_result;
+    word *the_word;
+    while ((iteration_result = dict_iterator_next(iterator, &the_word)) == 1) {
+        int value;
+        if (dict_get(words, the_word, &value) < 0) {
+            fprintf(stderr, "could not get dict value\n");
+            goto finally;
+        }
+        char *data = word_get_data(the_word);
+        if (!data) {
+            fprintf(stderr, "could not get word data\n");
+            goto finally;
+        }
+        printf("%s: %d\n", data, value);
+    }
+    if (iteration_result < 0) {
+        fprintf(stderr, "could not iterate dict\n");
+        goto finally;
+    }
+
     result = 0;
 finally:
     if (soubor) {
@@ -112,6 +141,9 @@ finally:
     }
     if (wanted_key) {
         word_free(wanted_key);
+    }
+    if (iterator) {
+        dict_iterator_free(iterator);
     }
     if (words) {
         dict_free(words);
