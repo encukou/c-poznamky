@@ -50,12 +50,12 @@ dict *dict_alloc(void) {
 
 void dict_free(dict *d) {
     for (size_t i = 0; i < d->contents_size; i++) {
-        dict_entry **pointer_to_current_entry = &(d->contents[i]);
-        while (*pointer_to_current_entry) {
-            dict_entry *current_entry = *pointer_to_current_entry;
-            pointer_to_current_entry = &(current_entry->next);
-            word_free(current_entry->key);
-            free(current_entry);
+        dict_entry *current_entry = d->contents[i];
+        while (current_entry) {
+            dict_entry *entry = current_entry;
+            current_entry = current_entry->next;
+            word_free(entry->key);
+            free(entry);
         }
     }
     free(d->contents);
