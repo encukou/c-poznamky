@@ -49,6 +49,15 @@ dict *dict_alloc(void) {
 }
 
 void dict_free(dict *d) {
+    for (size_t i = 0; i < d->contents_size; i++) {
+        dict_entry **pointer_to_current_entry = &(d->contents[i]);
+        while (*pointer_to_current_entry) {
+            dict_entry *current_entry = *pointer_to_current_entry;
+            pointer_to_current_entry = &(current_entry->next);
+            word_free(current_entry->key);
+            free(current_entry);
+        }
+    }
     free(d->contents);
     free(d);
 }
@@ -60,26 +69,63 @@ int dict_set(dict *d, dict_key key, dict_value value) {
         return -1;
     }
     size_t bucket = hash % d->contents_size;
-    // to be continued
 
+    dict_entry **pointer_to_current_entry = &(d->contents[bucket]);
+    while (*pointer_to_current_entry) {
+        dict_entry *current_entry = *pointer_to_current_entry;
+        int result = word_equal(current_entry->key, key);
+        if (result == -1) {
+            word_free(key);
+            return -1;
+        }
+        else if (result == 1) {
+            current_entry->value = value;
+            word_free(key);
+            return 0;
+        }
+        pointer_to_current_entry = &(current_entry->next);
+    }
+
+    // if we get here, we need to add a new entry
+    dict_entry *new_entry = malloc(sizeof(dict_entry));
+    if (new_entry == NULL) {
+        word_free(key);
+        return -1;
+    }
+    new_entry->key = key;
+    new_entry->value = value;
+    new_entry->next = NULL;
+    *pointer_to_current_entry = new_entry;
+
+    d->num_entries++;
+
+    return 0;
 }
 
 int dict_get(dict *d, dict_key key, dict_value *value) {
-    int result = -1;
-    char *key_data = word_get_data(key);
-    if (!key_data) {
-        *value = -1;
-        goto finally;
+    *value = 0;
+
+    dict_hash_type hash = word_hash(key);
+    if (hash == -1) {
+        return -1;
     }
-    if (strcmp(key_data, SINGLE_KEY) == 0) {
-        *value = d->count;
-        result = 1;
-    } else {
-        *value = -1;
-        result = 0;
+    size_t bucket = hash % d->contents_size;
+
+    dict_entry **pointer_to_current_entry = &(d->contents[bucket]);
+    while (*pointer_to_current_entry) {
+        dict_entry *current_entry = *pointer_to_current_entry;
+        int result = word_equal(current_entry->key, key);
+        if (result == -1) {
+            return -1;
+        }
+        else if (result == 1) {
+            *value = current_entry->value;
+            return 1;
+        }
+        pointer_to_current_entry = &(current_entry->next);
     }
-finally:
-    return result;
+
+    return 0;
 }
 
 

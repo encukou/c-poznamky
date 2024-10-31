@@ -64,3 +64,61 @@ char *word_get_data(word *w) {
 size_t word_size(word *w) {
     return w->size;
 }
+
+
+int word_equal(word *a, word *b) {
+    int result;
+    char *a_data = word_get_data(a);
+    if (!a_data) {
+        result = -1;
+        goto finally;
+    }
+    char *b_data = word_get_data(b);
+    if (!b_data) {
+        result = -1;
+        goto finally;
+
+    }
+    if (strcmp(a_data, b_data) == 0) {
+        result = 1;
+    } else {
+        result = 0;
+    }
+
+finally:
+    return result;
+}
+
+word *word_from_string(char *contents) {
+    word *result = NULL;
+    word *new_word = NULL;
+
+    new_word = word_alloc();
+    if (!new_word) {
+        goto finally;
+    }
+
+    for (contents; *contents; contents++) {
+        if (word_add_char(new_word, *contents) < 0) {
+            goto finally;
+        }
+    }
+
+    result = new_word;
+    new_word = NULL;
+finally:
+    if (new_word) {
+        word_free(new_word);
+    }
+    return result;
+}
+
+word_hash_type word_hash(word *w) {
+    char *data = word_get_data(w);
+    if (!data) {
+        return -1;
+    }
+    // TODO: use a proper hash function
+    return data[0];
+}
+

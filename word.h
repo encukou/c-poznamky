@@ -16,8 +16,6 @@ char *word_get_data(word *w);
 size_t word_size(word *w);
 
 
-// D.Ú.: (+testy, +použití word_from_string)
-
 // 1 = equal, 0 = not, -1 = error
 int word_equal(word *a, word *b);
 
