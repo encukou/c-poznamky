@@ -4,11 +4,26 @@
 #include "dict.h"
 #include "word.h"
 
+typedef word_hash_type dict_hash_type;
+
 const char SINGLE_KEY[] = "helena";
 const char DUMMY_KEY[] = "radius";
 
+const size_t INITIAL_SIZE = 8;
+
+typedef struct dict_entry {
+    dict_key key;
+    dict_value value;
+    struct dict_entry *next;
+} dict_entry;
+
 struct dict {
-    dict_value count;
+    dict_entry **contents;
+    size_t contents_size;
+    size_t num_entries;
+
+    // delete this:
+    dict_value count; // value for SINGLE_KEY
 };
 struct dict_iterator {
     int position;
@@ -21,27 +36,32 @@ dict *dict_alloc(void) {
         return NULL;
     }
     result->count = 0;
+
+    result->contents_size = INITIAL_SIZE;
+    result->num_entries = 0;
+    result->contents = malloc(sizeof(dict_entry *) * INITIAL_SIZE);
+    if (result->contents == NULL) {
+        free(result);
+        return NULL;
+    }
+
     return result;
 }
 
 void dict_free(dict *d) {
+    free(d->contents);
     free(d);
 }
 
 int dict_set(dict *d, dict_key key, dict_value value) {
-    int result = -1;
-    char *key_data = word_get_data(key);
-    if (!key_data) {
-        goto finally;
+    dict_hash_type hash = word_hash(key);
+    if (hash == -1) {
+        word_free(key);
+        return -1;
     }
-    if (strcmp(key_data, SINGLE_KEY) == 0) {
-        d->count = value;
-    }
+    size_t bucket = hash % d->contents_size;
+    // to be continued
 
-    result = 0;
-finally:
-    word_free(key);
-    return result;
 }
 
 int dict_get(dict *d, dict_key key, dict_value *value) {
